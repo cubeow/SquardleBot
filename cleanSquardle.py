@@ -4,6 +4,8 @@ import cv2
 import importlib
 import numpy as np
 import pytesseract
+from fillEmptySpaces import fillEmptySquares
+
 
 
 def cleanSquardleImage(type):
@@ -24,7 +26,7 @@ def cleanSquardleImage(type):
                 cropped_image[i, j] = [0, 0, 0]
     
     # creates a 5x5 kernel
-    kernel = np.ones((5, 5), np.uint8) 
+    kernel = np.ones((5, 5), np.uint8)
 
     # Makes the letters thicker
     eroded_image = cv2.erode(cropped_image, kernel)
@@ -53,7 +55,8 @@ def cleanSquardleImage(type):
         x, y, w, h = cv2.boundingRect(c)
         roi = cv2.copyMakeBorder(og_img[y+antiPadding:y+h-antiPadding, x+antiPadding:x+w-antiPadding], 100, 100, 100, 100, cv2.BORDER_CONSTANT, value=[224, 224, 224])
         wordList.append([pytesseract.image_to_string(roi, config="--psm 10"), x, y])
-    
+    wordList = fillEmptySquares(wordList)
+
     clusters = []
     # clusters the wordList elements by x positioning
     for i in wordList:
@@ -71,6 +74,7 @@ def cleanSquardleImage(type):
     # sorts the y values
     for index, i in enumerate(newClusters):
         newClusters[index][1] = sorted(newClusters[index][1], key=lambda x: x[2])
+    newClusters = sorted(newClusters, key=lambda x: x[0])
 
     newNewClusters = []
     # removes the now unnecessary cluster header
@@ -81,9 +85,9 @@ def cleanSquardleImage(type):
     length = len(newNewClusters[0])
     newestList = [[] for i in range(len(newNewClusters[0]))]
     letteredList = [[] for i in range(len(newNewClusters[0]))]
+    print(newestList)
     for j in range(length):
         for i in newNewClusters:
             newestList[j] = newestList[j] + [[i[j][0].replace("\n", "").replace("|", "I").replace("0", "O").replace("@", "O"), i[j][1] + startX, i[j][2] + startY]]
             letteredList[j] = letteredList[j] + [[i[j][0].replace("\n", "").replace("|", "I").replace("0", "O").replace("@", "O")]]
     return newestList, letteredList
-
