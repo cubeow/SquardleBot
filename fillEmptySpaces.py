@@ -2,8 +2,7 @@ from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
 def fillEmptySquares(sampleList):
-    # sampleList = [['B\n', 8, 364], ['N\n', 8, 246], ['K\n', 8, 127], ['U\n', 126, 364], ['E\n', 126, 246], ['J\n', 126, 127], ['A\n', 126, 9], ['R\n', 245, 246], ['A\n', 245, 127], ['C\n', 245, 9], ['E\n', 363, 246], ['L\n', 363, 127], ['K\n', 363, 9], ['D\n', 482, 364], ['Y\n', 482, 127]]
-
+    # sampleList = [['K\n', 8, 127], ['E\n', 126, 246], ['A\n', 126, 9], ['C\n', 245, 9]]
 
 
     allCoords = []
@@ -22,6 +21,8 @@ def fillEmptySquares(sampleList):
     smallestX = 100000
     smallestY = 100000
 
+
+
     for i in allCoords:
         if i[0] > largestX:
             largestX = i[0]
@@ -34,8 +35,8 @@ def fillEmptySquares(sampleList):
 
     stuffToAdd = []
 
-    for x in range(int((largestX - smallestX)/distance)+1):
-        for y in range(int((largestY - smallestY)/distance)+1):
+    for x in range(round((largestX - smallestX)/distance)+1):
+        for y in range(round((largestY - smallestY)/distance)+1):
             passed = False
             for row in sampleList:
                 if np.linalg.norm(np.array([row[1], row[2]]) - np.array([x*distance + smallestX, y*distance + smallestY])) <= 20:
@@ -45,4 +46,4 @@ def fillEmptySquares(sampleList):
 
     return stuffToAdd + sampleList
 
-print(fillEmptySquares("a"))
+# print(fillEmptySquares("a"))

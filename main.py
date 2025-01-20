@@ -11,6 +11,7 @@ import numpy as np
 import pytesseract
 import pyautogui
 import ast
+import time
 
 os.system("screencapture temp/screen.png")
 
@@ -64,13 +65,14 @@ def findWordRecursion(word):
                     else:
                         backups = backups[1:]
                         break
-            # normal loop. Goes through the rest of the letters in the word
+            # normal loop. Goes through the rest of the letters in the word. Also used after the backup is run.
             for letter in word[len(currentWorkingPath):]:
                 result = checkAdjacentLetter(currentLocation, letter, currentWorkingPath)
                 if len(result) > 0:
                     currentLocation = result[0][-1]
                     currentWorkingPath.append(currentLocation)
                     if len(result) > 1:
+                        # if there's more than one way (e.g. two O's next to a M), then you want to store all possible ways to the word. This is because there may be some dead ends.
                         backups += result[1:]
                 else:
                     break
@@ -80,8 +82,11 @@ def findWordRecursion(word):
             # if there's no backups, then you are finished with the while loop
             if len(backups) == 0:
                 break
-            # if there are backups, set the variables accordingly and delete the one you are going to use
+            # if there are backups, set the variables accordingly and delete the one you are going to use, since you don't want to keep infinitely reusing the same backup
             else:
+                # if you have a path to a word that's as long as a word, then that essentially means you've found the word
+                if len(currentWorkingPath) == len(word):
+                    return [word, currentWorkingPath]
                 currentLocation = backups[0][-1]
                 currentWorkingPath = backups[0]
                 if len(backups) > 1:
@@ -90,9 +95,10 @@ def findWordRecursion(word):
         if len(currentWorkingPath) == len(word):
             return [word, currentWorkingPath]
 allList = []
+print("going through words")
 for i in allWords:
-    print(i)
     if i.isalpha():
+        print(i)
         result = findWordRecursion(i)
         if result is not None:
             if len(result) > 0 and len(result[0]) >= 4:

@@ -33,10 +33,14 @@ def cleanSquardleImage(type):
     # swaps light pixels and dark pixels
     inverse_image = cv2.bitwise_not(eroded_image)
     # All pixels below value of 50 are made black and all above are made white
-    thresh, threshed_img = cv2.threshold(inverse_image, 50, 255, cv2.THRESH_BINARY)
+    thresh, threshed_img = cv2.threshold(inverse_image, 100, 255, cv2.THRESH_BINARY)
+    final_img = cv2.erode(threshed_img, kernel, iterations=2)
 
+    cv2.imwrite("temp/blurred_image.jpg", final_img)
     # reduces channel to 2 dimensions so that it can be used in the findContours function
-    converted_img = cv2.cvtColor(threshed_img, cv2.COLOR_BGR2GRAY)
+    converted_img = cv2.cvtColor(final_img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite("temp/hi.png", converted_img)
+
     # finds the boxes
     cnts = cv2.findContours(converted_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -51,12 +55,16 @@ def cleanSquardleImage(type):
     wordList = []
 
     # creates a wordList containing the stringified image and it's x and y coordinates
-    for c in cnts:
+    for index, c in enumerate(cnts):
         x, y, w, h = cv2.boundingRect(c)
         roi = cv2.copyMakeBorder(og_img[y+antiPadding:y+h-antiPadding, x+antiPadding:x+w-antiPadding], 100, 100, 100, 100, cv2.BORDER_CONSTANT, value=[224, 224, 224])
+        cv2.imwrite(f"temp/roi{index}.png", roi)
         wordList.append([pytesseract.image_to_string(roi, config="--psm 10"), x, y])
-    wordList = fillEmptySquares(wordList)
+        cv2.rectangle(og_img, (x, y), (x+w, y+h), (36, 255, 12), 2)
+        cv2.imwrite("temp/index_bbox_new.png", og_img)
 
+    wordList = fillEmptySquares(wordList)
+    print(wordList)
     clusters = []
     # clusters the wordList elements by x positioning
     for i in wordList:
@@ -80,7 +88,7 @@ def cleanSquardleImage(type):
     # removes the now unnecessary cluster header
     for i in newClusters:
         newNewClusters.append(i[1])
-    
+    print(newNewClusters)
     # transforms the list into a 2d matrix representative of a squaredle board
     length = len(newNewClusters[0])
     newestList = [[] for i in range(len(newNewClusters[0]))]

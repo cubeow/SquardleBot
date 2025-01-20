@@ -1,10 +1,8 @@
 import pyautogui
 import ast
-squardleBoard = [[['-'], ['A'], ['C'], ['K'], ['-']],
-[['K'], ['J'], ['A'], ['L'], ['Y']],
-[['N'], ['E'], ['R'], ['E'], ['C']],
-[['B'], ['U'], ['L'], ['V'], ['D']],
-[['-'], ['M'], ['Q'], ['S'], ['-']]]
+squardleBoard = [[['-'], ['A'], ['C'], ['K']],
+[['K'], ['J'], ['A'], ['L']],
+[['-'], ['E'], ['-'], ['-']]]
 
 with open("scrabbleWordList.txt") as file:
     allWords = ast.literal_eval(file.read())
@@ -65,6 +63,8 @@ def findWordRecursion(word):
                 break
             # if there are backups, set the variables accordingly and delete the one you are going to use
             else:
+                if len(currentWorkingPath) == len(word):
+                    return [word, currentWorkingPath]
                 currentLocation = backups[0][-1]
                 currentWorkingPath = backups[0]
                 if len(backups) > 1:
@@ -73,14 +73,15 @@ def findWordRecursion(word):
         if len(currentWorkingPath) == len(word):
             return [word, currentWorkingPath]
 allList = []
-for i in allWords:
-    print(i)
-    if i.isalpha():
-        result = findWordRecursion(i)
-        if result is not None:
-            if len(result) > 0 and len(result[0]) >= 4:
-                allList.append(result[0])
-print(allList)
-for i in allList:
-    pyautogui.write(i, interval=0.01)
-    pyautogui.press("enter")
+# for i in allWords:
+#     print(i)
+#     if i.isalpha():
+#         result = findWordRecursion(i)
+#         if result is not None:
+#             if len(result) > 0 and len(result[0]) >= 4:
+#                 allList.append(result[0])
+# print(allList)
+# for i in allList:
+#     pyautogui.write(i, interval=0.01)
+#     pyautogui.press("enter")
+print(findWordRecursion("cake"))
