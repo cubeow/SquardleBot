@@ -1,4 +1,4 @@
-# Watch the informational video / demo!
+# Watch the demo!
 https://www.instagram.com/p/DFB-y4Ih4c1_a9OIBMTp6kyegCJYHEtYxumi-E0/
 
 # SquardleBot
